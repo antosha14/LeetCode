@@ -3,13 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 POSTGRESS_DATABASE_URL = "postgresql://postgres:admin123@localhost:5000/postgres"
-engine = create_engine(POSTGRESS_DATABASE_URL)  # Создаём движок
-
-SessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine
-)  # Создаём конструктор коннекшнов к базе
-
-Base = declarative_base()  # Класс от которого будут наследовать Модели PSQL
+engine = create_engine(POSTGRESS_DATABASE_URL)
 
 connection = engine.connect()
 result = connection.execute("SELECT * FROM users WHERE id > :id", {"id": 5})
@@ -88,23 +82,57 @@ result = connection.execute(
     """
 )
 
+"""
+SELF Join, leaving instanses where a2 is bigger and then aggregating on id
+"""
 result = connection.execute(
     """
-                            
+    SELECT a1.machine_id, ROUND(AVG(a2.timestamp-a1.timestamp)::numeric, 3) AS processing_time
+    FROM Activity AS a1
+    JOIN Activity AS a2 ON a1.machine_id=a2.machine_id      
+    AND a1.process_id=a2.process_id
+    AND a2.timestamp>a1.timestamp
+    GROUP BY a1.machine_id;                       
     """
 )
+
+"""METHOD 2 Join on data in columns"""
 result = connection.execute(
     """
-                            
+    SELECT
+        t1.machine_id,
+        ROUND(AVG(t2.timestamp - t1.timestamp)::NUMERIC, 3) AS processing_time
+    FROM Activity t1
+    JOIN Activity t2
+        ON  t1.activity_type = 'start'
+        AND t2.activity_type = 'end'
+        AND t1.machine_id = t2.machine_id
+        AND t1.process_id = t2.process_id
+    GROUP BY
+        1                     
     """
 )
+
+"""
+LEFT JOIN 100% will have all rows from left table, even when AND is not true (value will be null)
+So we use where on join result NOT AND
+"""
 result = connection.execute(
     """
-                            
+    SELECT e.name, b.bonus FROM Employee AS e
+    LEFT JOIN Bonus AS b ON e.empId=b.empID
+    WHERE bonus IS NULL OR bonus<1000                            
     """
 )
+
+"""
+Inner JOIN is farter then left join
+"""
+
 result = connection.execute(
     """
-                            
+    SELECT p.project_id, ROUND(AVG(e.experience_years)::NUMERIC, 2) AS average_years FROM Project AS p
+    INNER JOIN Employee AS e ON p.employee_id=e.employee_id
+    GROUP BY p.project_id;                         
     """
 )

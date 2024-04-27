@@ -1,7 +1,7 @@
 # List of learning checkpoints
 
 Geek for geeks ML algorithms
-W3 Shcool SQL
+~~W3 Shcool SQL~~
 Leetcode SQL
 Leetcode Advanced SQL
 Math Coursera

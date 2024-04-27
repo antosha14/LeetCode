@@ -138,3 +138,112 @@ ORDER BY ProductName;
 
 SELECT \* FROM Orders
 WHERE OrderDate BETWEEN #07/01/1996# AND #07/31/1996#;
+
+SELECT p.product_id, COALESCE((ROUND((SUM(u.units::numeric*p.price::numeric)/SUM(u.units)::numeric)::numeric, 2)::numeric), 0) AS average_price FROM Prices AS p
+LEFT JOIN UnitsSold AS u ON p.product_id=u.product_id
+AND u.purchase_date BETWEEN p.start_date AND p.end_date
+GROUP BY p.product_id                          
+
+
+/*Union adds second selet, ALL to allow dublicates*/
+SELECT column_name(s) FROM table1
+UNION ALL
+SELECT column_name(s) FROM table2;
+
+--The HAVING clause was added to SQL because the WHERE keyword cannot be used with aggregate functions.
+SELECT COUNT(CustomerID), Country
+FROM Customers
+GROUP BY Country
+HAVING COUNT(CustomerID) > 5;
+
+SELECT COUNT(CustomerID), Country
+FROM Customers
+GROUP BY Country
+HAVING COUNT(CustomerID) > 5
+ORDER BY COUNT(CustomerID) DESC;
+
+
+--The EXISTS operator is used to test for the existence of any record in a subquery.
+
+--Create table
+CREATE TABLE Persons (
+    PersonID int,
+    LastName varchar(255),
+    FirstName varchar(255),
+    Address varchar(255),
+    City varchar(255)
+);
+
+-- The EXISTS operator is used to test for the existence of any record in a subquery.
+-- The EXISTS operator returns TRUE if the subquery returns one or more records.
+SELECT SupplierName
+FROM Suppliers
+WHERE EXISTS (SELECT ProductName FROM Products WHERE Products.SupplierID = Suppliers.supplierID AND Price = 22); 
+
+--The ANY and ALL operators allow you to perform a comparison between a single column value and a range of other values.
+
+-- To copy all data to a new table
+SELECT *
+INTO newtable [IN externaldb]
+FROM oldtable
+WHERE condition;
+
+--Tip: SELECT INTO can also be used to create a new, empty table using the schema of another. Just add a WHERE clause that causes the query to return no data:
+SELECT * INTO newtable
+FROM oldtable
+WHERE 1 = 0; 
+
+SELECT ProductName
+FROM Products
+WHERE ProductID = ANY
+  (SELECT ProductID
+  FROM OrderDetails
+  WHERE Quantity = 10); 
+
+
+--Copy only the German suppliers into "Customers":
+INSERT INTO Customers (CustomerName, City, Country)
+SELECT SupplierName, City, Country FROM Suppliers
+WHERE Country='Germany';
+
+--CASE 
+SELECT OrderID, Quantity,
+CASE
+    WHEN Quantity > 30 THEN 'The quantity is greater than 30'
+    WHEN Quantity = 30 THEN 'The quantity is 30'
+    ELSE 'The quantity is under 30'
+END AS QuantityText
+FROM OrderDetails; 
+
+
+SELECT CustomerName, City, Country
+FROM Customers
+ORDER BY
+(CASE
+    WHEN City IS NULL THEN Country
+    ELSE City
+END); 
+
+--SQL IFNULL(), ISNULL(), COALESCE()
+
+CREATE PROCEDURE procedure_name
+AS
+sql_statement
+GO; 
+EXEC SelectAllCustomers;
+
+
+--Procedure with a parametr 
+CREATE PROCEDURE SelectAllCustomers @City nvarchar(30)
+AS
+SELECT * FROM Customers WHERE City = @City
+GO;
+EXEC SelectAllCustomers @City = 'London'; 
+
+CREATE PROCEDURE SelectAllCustomers @City nvarchar(30), @PostalCode nvarchar(10)
+AS
+SELECT * FROM Customers WHERE City = @City AND PostalCode = @PostalCode
+GO;
+
+
+EXEC SelectAllCustomers @City = 'London', @PostalCode = 'WA1 1DP'; 
