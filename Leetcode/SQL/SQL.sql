@@ -247,3 +247,13 @@ GO;
 
 
 EXEC SelectAllCustomers @City = 'London', @PostalCode = 'WA1 1DP'; 
+
+
+NULLIF(COUNT(c.action)
+
+select
+    user_id,
+    round((count(*) filter (where action = 'confirmed') * 1.00 / count(*)* 1.00),2) as "confirmation_rate"
+from signups
+left join confirmations using(user_id)
+group by 1;
