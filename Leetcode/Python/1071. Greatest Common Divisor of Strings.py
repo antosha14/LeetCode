@@ -27,7 +27,8 @@ class Solution:
 
 
 # OPTIMIZATION # MATH HAS METHOD FOR THIS TASK
-# CHECK and use simple gcd from math
+# CHECK if strings are build from the same blocks by adding them and comparing with reversed join, and use simple gcd from math
+# BC blocks shoud be similar for both strings
 
 
 class Solution:
