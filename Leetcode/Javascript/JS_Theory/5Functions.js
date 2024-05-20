@@ -194,3 +194,91 @@ setTimeout(() => alert("Мир"));
 alert("Привет");
 Любой вызов setTimeout будет выполнен только после того, как текущий код завершится.
 `
+
+`
+Существует специальный встроенный метод функции func.call(context, …args), который позволяет вызывать функцию, явно устанавливая this.
+func.call(context, arg1, arg2, ...)
+`
+
+`
+let worker = {
+  someMethod() {
+    return 1;
+  },
+
+  slow(x) {
+    alert("Called with " + x);
+    return x * this.someMethod(); // (*)
+  }
+};
+
+function cachingDecorator(func) {
+  let cache = new Map();
+  return function(x) {
+    if (cache.has(x)) {
+      return cache.get(x);
+    }
+    let result = func.call(this, x); // теперь 'this' передаётся правильно
+    cache.set(x, result);
+    return result;
+  };
+}
+
+worker.slow = cachingDecorator(worker.slow); // теперь сделаем её кеширующей
+
+alert( worker.slow(2) ); // работает
+alert( worker.slow(2) ); // работает, не вызывая первоначальную функцию (кешируется)
+Теперь всё в порядке.
+
+Чтобы всё было понятно, давайте посмотрим глубже, как передаётся this:
+
+После декорации worker.slow становится обёрткой function (x) { ... }.
+Так что при выполнении worker.slow(2) обёртка получает 2 в качестве аргумента и this=worker (так как это объект перед точкой).
+Внутри обёртки, если результат ещё не кеширован, func.call(this, x) передаёт текущий this (=worker) и текущий аргумент (=2) в оригинальную функцию.
+func.apply(context, args) принимает в качестве аргументов псевдомассив
+`
+
+`
+function hash() {
+  alert( [].join.call(arguments) ); // 1,2
+}
+
+hash(1, 2);
+Этот трюк называется заимствование метода.
+Мы берём (заимствуем) метод join из обычного массива [].join. И используем [].join.call, чтобы выполнить его в контексте arguments.
+
+`
+
+`
+При передаче методов объекта в качестве колбэков, например для setTimeout, возникает известная проблема – потеря this.
+`
+
+`
+Ytkmpz ldjqyjq иштв
+function f() {
+  alert(this.name);
+}
+
+f = f.bind( {name: "Вася"} ).bind( {name: "Петя"} );
+
+f(); // Вася
+`
+
+`
+В свойство функции записано значение. Изменится ли оно после применения bind? Обоснуйте ответ.
+
+function sayHi() {
+  alert( this.name );
+}
+sayHi.test = 5;
+
+let bound = sayHi.bind({
+  name: "Вася"
+});
+
+alert( bound.test ); // что выведет? почему?
+решение
+Ответ: undefined.
+
+Результатом работы bind является другой объект. У него уже нет свойства test.
+`
