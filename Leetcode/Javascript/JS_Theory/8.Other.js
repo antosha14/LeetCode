@@ -227,3 +227,25 @@ alert(admin.name); // Pete
   counter.count();
 </script>
 `
+`
+Не ставится точка с запятой после экспорта класса/функции
+import * as say from './say.js';
+import {sayHi as hi, sayBye as bye} from './say.js';
+export {sayHi as hi, sayBye as bye};
+Теперь hi и bye – официальные имена для внешнего кода, их нужно использовать при импорте
+export {sayHi as default}; // альтернатива
+import {default as User, sayHi} from './user.js';
+И, наконец, если мы импортируем всё как объект import *, тогда его свойство default – как раз и будет экспортом по умолчанию
+export {sayHi} from './say.js'; // реэкспортировать sayHi
+export {default as User} from './user.js'; // реэкспортировать default
+Чтобы реэкспортировать экспорт по умолчанию, мы должны написать export {default as User}, как в примере выше. Такая вот особенность синтаксиса.
+`
+
+`
+Выражение import(module) загружает модуль и возвращает промис, результатом которого становится объект модуля, содержащий все его экспорты.
+
+let {hi, bye} = await import('./say.js');
+hi();
+bye();
+Динамический импорт работает в обычных скриптах, он не требует указания script type="module".
+`
