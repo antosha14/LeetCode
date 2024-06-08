@@ -502,3 +502,55 @@ function weakRefCache(fetchImg) {
 }
 
 const getCachedImg = weakRefCache(fetchImg);
+
+`
+let target = {};
+let proxy = new Proxy(target, {}); // пустой handler
+
+proxy.test = 5; // записываем в прокси (1)
+alert(target.test); // 5, свойство появилось в target!
+
+alert(proxy.test); // 5, мы также можем прочитать его из прокси (2)
+
+for(let key in proxy) alert(key); // test, итерация работает (3)
+`
+
+`
+ЛОВУШКА GET
+let numbers = [0, 1, 2];
+
+numbers = new Proxy(numbers, {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      return 0; // значение по умолчанию
+    }
+  }
+});
+
+alert( numbers[1] ); // 1
+alert( numbers[123] ); // 0 (нет такого элемента)
+`
+
+`
+ЛОВУШКА ДЛЯ SET
+let numbers = [];
+numbers = new Proxy(numbers, { // (*)
+  set(target, prop, val) { // для перехвата записи свойства
+    if (typeof val == 'number') {
+      target[prop] = val;
+      return true;
+    } else {
+      return false;
+    }
+  }
+});
+
+numbers.push(1); // добавилось успешно
+numbers.push(2); // добавилось успешно
+alert("Длина: " + numbers.length); // 2
+
+numbers.push("тест"); // TypeError (ловушка set на прокси вернула false)
+Современные интерпретаторы JavaScript поддерживают приватные свойства в классах. Названия таких свойств должны начинаться с символа #
+`
