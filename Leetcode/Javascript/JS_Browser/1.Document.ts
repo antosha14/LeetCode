@@ -134,3 +134,139 @@ document.body.innerHTML
 Свойство textContent предоставляет доступ к тексту внутри элемента за вычетом всех <тегов>
 Технически, hidden работает так же, как style="display:none". Но его применение проще.
 `
+
+`
+Конечно. Все атрибуты доступны с помощью следующих методов:
+
+elem.hasAttribute(name) – проверяет наличие атрибута.
+elem.getAttribute(name) – получает значение атрибута.
+elem.setAttribute(name, value) – устанавливает значение атрибута.
+elem.removeAttribute(name) – удаляет атрибут.
+
+У HTML-атрибутов есть следующие особенности:
+Их имена регистронезависимы (id то же самое, что и ID).
+Их значения всегда являются строками.
+Все атрибуты, начинающиеся с префикса «data-», зарезервированы для использования программистами. Они доступны в свойстве dataset.
+<body data-about="Elephants">
+<script>
+  alert(document.body.dataset.about); // Elephants
+</script>
+Атрибуты, состоящие из нескольких слов, к примеру data-order-state, становятся свойствами, записанными с помощью верблюжьей нотации: dataset.orderState.
+`
+
+`
+let div = document.createElement('div');
+let textNode = document.createTextNode('А вот и я');
+document.body.append(div)
+Вот методы для различных вариантов вставки:
+node.append(...nodes or strings) – добавляет узлы или строки в конец node,
+node.prepend(...nodes or strings) – вставляет узлы или строки в начало node,
+node.before(...nodes or strings) –- вставляет узлы или строки до node,
+node.after(...nodes or strings) –- вставляет узлы или строки после node,
+node.replaceWith(...nodes or strings) –- заменяет node заданными узлами или строками.
+div.remove()
+Все методы вставки автоматически удаляют узлы со старых мест.
+
+Вызов elem.cloneNode(true) создаёт «глубокий» клон элемента – со всеми атрибутами и дочерними элементами. Если мы вызовем elem.cloneNode(false), тогда клон будет без дочерних элементов.
+`
+
+`
+document.body.classList.add('article');
+Методы classList:
+elem.classList.add/remove("class") – добавить/удалить класс.
+elem.classList.toggle("class") – добавить класс, если его нет, иначе удалить.
+elem.classList.contains("class") – проверка наличия класса, возвращает true/false.
+Свойство style оперирует только значением атрибута "style", без учёта CSS-каскада.
+getComputedStyle(element, [pseudo]) //Получить скалькулированные стили
+
+Есть две концепции в CSS:
+Вычисленное (computed) значение – это то, которое получено после применения всех CSS-правил и CSS-наследования. Например, height:1em или font-size:125%.
+Окончательное (resolved) значение – непосредственно применяемое к элементу. Значения 1em или 125% являются относительными. Браузер берёт вычисленное значение и делает все единицы измерения фиксированными и абсолютными, например, height:20px или font-size:16px. Для геометрических свойств разрешённые значения могут иметь плавающую точку, например, width:50.5px.
+
+Свойства offsetLeft/offsetTop содержат координаты x/y относительно верхнего левого угла offsetParent.
+`
+
+`
+scrollWidth/Height
+Эти свойства – как clientWidth/clientHeight, но также включают в себя прокрученную (которую не видно) часть элемента.
+scrollLeft/scrollTop - Для задачи прокрутики элемента
+Чтобы получить ширину/высоту окна, можно взять свойства clientWidth/clientHeight
+`
+
+
+`
+Чтобы надёжно получить полную высоту документа, нам следует взять максимальное из этих свойств:
+let scrollHeight = Math.max(
+  document.body.scrollHeight, document.documentElement.scrollHeight,
+  document.body.offsetHeight, document.documentElement.offsetHeight,
+  document.body.clientHeight, document.documentElement.clientHeight
+);
+
+`
+
+`
+Обычные элементы хранят текущее состояние прокрутки в elem.scrollLeft/scrollTop
+Текущая прокрутка страницы window.pageXOffset/pageYOffset
+Для прокрутки страницы из JavaScript её DOM должен быть полностью построен.
+Обычные элементы можно прокручивать, изменяя scrollTop/scrollLeft.
+Мы можем сделать то же самое для страницы в целом, используя document.documentElement.scrollTop/Left (кроме основанных на старом WebKit (Safari), где, как сказано выше, document.body.scrollTop/Left).
+window.scrollBy(x,y) и window.scrollTo(pageX,pageY).
+
+Для полноты картины давайте рассмотрим ещё один метод: elem.scrollIntoView(top).
+Вызов elem.scrollIntoView(top) прокручивает страницу, чтобы elem оказался вверху. У него есть один аргумент:
+если top=true (по умолчанию), то страница будет прокручена, чтобы elem появился в верхней части окна. Верхний край элемента совмещён с верхней частью окна.
+если top=false, то страница будет прокручена, чтобы elem появился внизу. Нижний край элемента будет совмещён с нижним краем окна
+`
+
+`
+Метод elem.getBoundingClientRect() возвращает координаты в контексте окна для минимального по размеру прямоугольника, который заключает в себе элемент elem
+Большинство соответствующих методов JavaScript работают в одной из двух указанных ниже систем координат:
+
+Относительно окна браузера – как position:fixed, отсчёт идёт от верхнего левого угла окна.
+мы будем обозначать эти координаты как clientX/clientY, причина выбора таких имён будет ясна позже, когда мы изучим свойства событий.
+Относительно документа – как position:absolute на уровне документа, отсчёт идёт от верхнего левого угла документа.
+мы будем обозначать эти координаты как pageX/pageY
+
+Метод elem.getBoundingClientRect() возвращает координаты в контексте окна для минимального по размеру прямоугольника, который заключает в себе элемент elem, в виде объекта встроенного класса DOMRect.
+
+Основные свойства объекта типа DOMRect:
+x/y – X/Y-координаты начала прямоугольника относительно окна,
+width/height – ширина/высота прямоугольника (могут быть отрицательными).
+Дополнительные, «зависимые», свойства:
+top/bottom – Y-координата верхней/нижней границы прямоугольника,
+left/right – X-координата левой/правой границы прямоугольника.
+`
+
+
+`
+Чтобы показать что-то около нужного элемента, мы можем вызвать getBoundingClientRect, чтобы получить его координаты, а затем использовать CSS-свойство position вместе с left/top (или right/bottom).
+Функция getCoords(elem) берёт координаты в контексте окна с помощью elem.getBoundingClientRect() и добавляет к ним значение соответствующей прокрутки:
+
+// получаем координаты элемента в контексте документа
+function getCoords(elem) {
+  let box = elem.getBoundingClientRect();
+
+  return {
+    top: box.top + window.pageYOffset,
+    right: box.right + window.pageXOffset,
+    bottom: box.bottom + window.pageYOffset,
+    left: box.left + window.pageXOffset
+  };
+}
+Если бы в примере выше мы использовали её вместе с position:absolute, то при прокрутке сообщение оставалось бы рядом с элементом.
+
+Модифицированная функция createMessageUnder:
+
+function createMessageUnder(elem, html) {
+  let message = document.createElement('div');
+  message.style.cssText = "position:absolute; color: red";
+
+  let coords = getCoords(elem);
+
+  message.style.left = coords.left + "px";
+  message.style.top = coords.bottom + "px";
+
+  message.innerHTML = html;
+
+  return message;
+`
