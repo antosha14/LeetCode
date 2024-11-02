@@ -3,9 +3,11 @@ subarray with the largest sum, and return its sum.
 `
 
 `
+Если сумма отрицательная, обновляем left pointer, правый инкрементируется на каждой итерации
+
 1 variable to keep current sum
 2 to keep max sum
-1 loop ti update variables
+1 loop to update variables
 `
 /**
  * @param {number[]} nums
