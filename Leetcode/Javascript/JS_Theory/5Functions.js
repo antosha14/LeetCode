@@ -254,7 +254,6 @@ hash(1, 2);
 `
 
 `
-Ytkmpz ldjqyjq иштв
 function f() {
   alert(this.name);
 }
